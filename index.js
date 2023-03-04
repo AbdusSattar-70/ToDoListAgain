@@ -29,6 +29,7 @@ const displayOnUI = () =>{
    editListener();
    saveListener();
    deleteListener();
+   checkBox()
 
 }
 
@@ -36,6 +37,7 @@ const displayOnUI = () =>{
 const generateIndex = ()=>{
   return data.length;
 }
+
 /* push data from the input field in the data array  */
 const pushData = () => {
   const form = document.querySelector('.form');
@@ -56,6 +58,7 @@ const pushData = () => {
   });
 };
 
+pushData();
 /* for the textarea  editable and show controllers(deleteBtn , saveBtn )*/
 const editListener = ()=>{
   const textareas = document.querySelectorAll('textarea');
@@ -85,7 +88,7 @@ const saveListener = () =>{
 })
 }
 
-/* for deleting each item / textarea */
+/* for deleting each item from data array */
 
 const deleteListener = ()=>{
   const deleteBtns = document.querySelectorAll('.deleteBtn');
@@ -93,7 +96,8 @@ const deleteListener = ()=>{
   deleteBtn.addEventListener('click',()=>{
     /* After applying the filter method  get a filtered array,
     in which no item remains that we want to delete. Then reassign the data array. */
-    data = data.filter((singleObj,index) => index !== i);
+    const filteredArr = data.filter((singleObj) => singleObj.index !== i);
+    data = filteredArr;
     /* after deleting update the index of the each object */
     data.forEach((singleObj,i)=>{
       singleObj.index =i;
@@ -104,7 +108,58 @@ const deleteListener = ()=>{
 })
 }
 
+const checkBox = () => {
+  const checks = document.querySelectorAll('.checkbox');
+  const inputs = document.querySelectorAll('textarea');
+  checks.forEach((ck, i) => {
+    const isCompleted = data[i].completed;
+    if (isCompleted) {
+      inputs[i].classList.add('completed');
+      checks[i].setAttribute('checked', 'checked');
+    }
+    ck.addEventListener('change', () => {
+      if (checks[i].checked) {
+        inputs[i].classList.add('completed');
+        data[i].completed = true;
+        // updateCompletedStatus(i, true);
+      } else {
+        inputs[i].classList.remove('completed');
+        data[i].completed = false;
+        // updateCompletedStatus(i, false);
+      }
+      setInLocal();
+    });
+  });
+};
+
+const clearBtn = document.querySelector('.clearCompleted');
+clearBtn.addEventListener('click', () => {
+  const checks = document.querySelectorAll('.checkbox');
+  const updateItem = [];
+  checks.forEach((checkbox, i) => {
+    if (checkbox.checked) {
+      data.forEach((item, index) => {
+        item.index = index;
+      });
+      updateItem.push(i);
+    }
+  });
+  const updateList = data.filter((item, i) => !updateItem.includes(i));
+  updateList.forEach((item, index) => {
+    item.index = index;
+  });
+  /* update data array when any item delete */
+  data = updateList;
+  localStorage.setItem('list', JSON.stringify(updateList));
+  displayOnUI();
+
+});
+
+document.querySelector('.fa-refresh').addEventListener('click', () => {
+  window.location.reload();
+  document.querySelector('.fa-refresh').classList.add('refresh');
+});
+
 retrieveFromLocal();
-pushData();
 displayOnUI();
 
